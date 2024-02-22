@@ -52,7 +52,7 @@ def adjust_brightness(pixel, option, amount):
     if option == 'L':
         BOUND = 255
         # Get the lowest value from the three channels
-        lowest_value = min(pixel_dict.values())
+        lowest_value = min(pixel)
         # Process to obtain adjustment
         distance = BOUND - lowest_value
         potential_adjustment = round(amount / 100 * distance)
@@ -62,17 +62,33 @@ def adjust_brightness(pixel, option, amount):
         # NB: if distance is 0 i.e. lowest RGB value is already at BOUND, no adjust will occur
         actual_adjustment = lowest_value_updated - lowest_value
         increase_percentage = 0 if distance == 0 else actual_adjustment / distance
-
         # Update the lowest value in dict to the new value, and update other values using the percentage
         for (key, value) in pixel_dict.items():
             if value == lowest_value:
                 pixel_dict[key] = lowest_value_updated
             else:
                 pixel_dict[key] = round(value + (BOUND - value) * increase_percentage)
-        # Return the updated RGB values as a tuple
-        return pixel_dict['R'], pixel_dict['G'], pixel_dict['B']
+
     elif option == 'D':
-        return 0, 0, 0
+        # Same idea as lighten except adjust toward lower bound of 0
+        BOUND = 0
+
+        highest_value = max(pixel)
+        distance = highest_value - BOUND
+        potential_adjustment = round(amount / 100 * distance)
+
+        highest_value_updated = max(highest_value - potential_adjustment, BOUND)
+        actual_adjustment = highest_value - highest_value_updated
+        decrease_percentage = 0 if distance == 0 else actual_adjustment / distance
+
+        for (key, value) in pixel_dict.items():
+            if value == highest_value:
+                pixel_dict[key] = highest_value_updated
+            else:
+                pixel_dict[key] = round(value - (value - BOUND) * decrease_percentage)
+
+    # Return the updated RGB values as a tuple
+    return pixel_dict['R'], pixel_dict['G'], pixel_dict['B']
 
 
 ## Function to display altered image and prompt user to save

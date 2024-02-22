@@ -56,11 +56,18 @@ def present_menu():
             ld_amount = -1
             while ld_amount > 100 or ld_amount < 0:
                 ld_amount = int(input("Enter an amount for processing between 0% and 100%: "))
-            image_tools.lighten_darken(file_path, ld_choice, ld_amount)
+            image_tools.process_image(file_path, processing_option, ld_option=ld_choice, amount=ld_amount)
+        ## Option 2: Channel color
+        elif processing_option == 2:
+            # Prompt user to choose a color channel
+            CHANNELS = set("RGB")
+            channel_choice = ''
+            while channel_choice.upper() not in CHANNELS:
+                channel_choice = input("Enter color channel (R/G/B): ")
+            image_tools.process_image(file_path, processing_option, channel=channel_choice)
 
         # Prompt user to process another image or quit
         user_choice = input("\nProcess another image? (Y/N): ")
         if user_choice.upper() != 'Y':
             user_choice = 'Q'
 
-    print("done")

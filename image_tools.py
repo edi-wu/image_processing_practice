@@ -5,12 +5,14 @@
 from PIL import Image
 
 
-## Lighten or darken an image via multiplying RGB values by constant factor
+## Main image processing function that calls appropriate helper based on option choice
 # @param file_path - path to source image file (string)
-# @param option - either "L" for lighten or "D" for darken (string)
-# @param amount - percentage between 0-100 to adjust image by (integer)
+# @param option - image processing option (integer)
+# @param ld_option - *for lighten/darken* 'L' or 'D' for lighten or darken (string)
+# @param amount - *for lighten/darken* percentage between 0-100 to adjust image by (integer)
+# @param channel - *for channel color* 'R' 'G' or 'B' channel (string)
 #
-def lighten_darken(file_path, option, amount):
+def process_image(file_path, option, ld_option='', amount=0, channel=''):
     # Open image for processing
     with Image.open(file_path) as img:
         # Create black copy and load both pixel arrays
@@ -22,8 +24,17 @@ def lighten_darken(file_path, option, amount):
             for y in range(img.height):
                 # Get source pixel and its RGB values
                 old_pixel = source_pixels[x, y]
-                # Adjust brightness accordingly to obtain new pixel
-                new_pixel = adjust_brightness(old_pixel, option, amount)
+                # Get new pixel's RGB values based on which processing option is chosen
+                # 1 - lighten/darken
+                # 2 - channel color
+                # 3 - invert color
+                # 4 - add blur
+                # 5 - edge detection
+                new_pixel = (0, 0, 0)
+                if option == 1:
+                    new_pixel = adjust_brightness(old_pixel, ld_option, amount)
+                elif option == 2:
+                    new_pixel = channel_color(old_pixel, channel)
                 # Update altered pixel array
                 altered_pixels[x, y] = new_pixel
         # Display altered image and prompt user to save or not
@@ -91,6 +102,22 @@ def adjust_brightness(pixel, option, amount):
     return pixel_dict['R'], pixel_dict['G'], pixel_dict['B']
 
 
+## Create new pixel reflecting intensity of specified color channel
+# @param pixel - RGB values of source pixel (tuple of three ints)
+# @param channel - 'R', 'G' or 'B' for color channel (string)
+# @return tuple of three ints for RGB values of altered pixel
+#
+def channel_color(pixel, channel):
+    # Set all values to the intensity of specified channel
+    pixel_r, pixel_g, pixel_b = pixel[0], pixel[1], pixel[2]
+    if channel == 'R':
+        return pixel_r, pixel_r, pixel_r
+    elif channel == 'G':
+        return pixel_g, pixel_g, pixel_g
+    else:
+        return pixel_b, pixel_b, pixel_b
+
+
 ## Function to display altered image and prompt user to save
 # @param img - altered image object for display (PIL image object)
 # @param file_path - path to source image file (string)
@@ -111,8 +138,3 @@ def show_and_save(img, file_path):
         save_file_path = directory + "/" + name_and_extension[0] + NAME_SUFFIX + "." + name_and_extension[1]
         # Save the altered image
         img.save(save_file_path)
-
-# def main():
-    # show_and_save("test/i/o/image.jpeg")
-
-# main()

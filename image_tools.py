@@ -13,6 +13,8 @@ from PIL import Image
 # @param channel - *for channel color* 'R' 'G' or 'B' channel (string)
 #
 def process_image(file_path, option, ld_option='', amount=0, channel=''):
+    # Print status message for processing in progress
+    print("Please wait... your image is being processed.")
     # Open image for processing
     with Image.open(file_path) as img:
         # Create black copy and load both pixel arrays
@@ -128,6 +130,7 @@ def invert_colors(pixel):
     # For each value, update it to result of 255 - value
     pixel_r, pixel_g, pixel_b = pixel[0], pixel[1], pixel[2]
     return 255 - pixel_r, 255 - pixel_g, 255 - pixel_b
+
 
 ## Function to display altered image and prompt user to save
 # @param img - altered image object for display (PIL image object)

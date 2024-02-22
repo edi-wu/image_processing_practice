@@ -27,7 +27,7 @@ def process_image(file_path, option, ld_option='', amount=0, channel=''):
                 # Get new pixel's RGB values based on which processing option is chosen
                 # 1 - lighten/darken
                 # 2 - channel color
-                # 3 - invert color
+                # 3 - invert colors
                 # 4 - add blur
                 # 5 - edge detection
                 new_pixel = (0, 0, 0)
@@ -35,6 +35,8 @@ def process_image(file_path, option, ld_option='', amount=0, channel=''):
                     new_pixel = adjust_brightness(old_pixel, ld_option, amount)
                 elif option == 2:
                     new_pixel = channel_color(old_pixel, channel)
+                elif option == 3:
+                    new_pixel = invert_colors(old_pixel)
                 # Update altered pixel array
                 altered_pixels[x, y] = new_pixel
         # Display altered image and prompt user to save or not
@@ -53,7 +55,7 @@ def copy_image(img):
 # @param pixel - RGB values of source pixel (tuple of three ints)
 # @param option - 'L' or 'D' for lighten or darken operation (string)
 # @param amount - percentage amount to adjust by (int)
-# @return tuple of three ints for RGB values of altered pixel
+# @return RGB values of altered pixel (tuple of three ints)
 #
 def adjust_brightness(pixel, option, amount):
     ## To lighten, adjust each value by % difference between 255 and the lowest of the three values
@@ -105,7 +107,7 @@ def adjust_brightness(pixel, option, amount):
 ## Create new pixel reflecting intensity of specified color channel
 # @param pixel - RGB values of source pixel (tuple of three ints)
 # @param channel - 'R', 'G' or 'B' for color channel (string)
-# @return tuple of three ints for RGB values of altered pixel
+# @return RGB values of altered pixel (tuple of three ints)
 #
 def channel_color(pixel, channel):
     # Set all values to the intensity of specified channel
@@ -117,6 +119,15 @@ def channel_color(pixel, channel):
     else:
         return pixel_b, pixel_b, pixel_b
 
+
+## Create new pixel with inverted colors
+# @param pixel - RGB values of source pixel (tuple of three ints)
+# @return RGB values of altered pixel (tuple of three ints)
+#
+def invert_colors(pixel):
+    # For each value, update it to result of 255 - value
+    pixel_r, pixel_g, pixel_b = pixel[0], pixel[1], pixel[2]
+    return 255 - pixel_r, 255 - pixel_g, 255 - pixel_b
 
 ## Function to display altered image and prompt user to save
 # @param img - altered image object for display (PIL image object)

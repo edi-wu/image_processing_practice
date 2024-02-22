@@ -65,6 +65,9 @@ def present_menu():
             while channel_choice.upper() not in CHANNELS:
                 channel_choice = input("Enter color channel (R/G/B): ")
             image_tools.process_image(file_path, processing_option, channel=channel_choice)
+        ## Option 3: Invert colors
+        elif processing_option == 3:
+            image_tools.process_image(file_path, processing_option)
 
         # Prompt user to process another image or quit
         user_choice = input("\nProcess another image? (Y/N): ")

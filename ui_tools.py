@@ -3,6 +3,7 @@
 ## Description: Functions for console UI menu with branching and validation
 
 import os
+import image_tools
 
 
 ## Presents main menu and calls appropriate functions based on user choice
@@ -27,8 +28,8 @@ def present_menu():
             print(f"{i + 1}) {IMAGE_OPTIONS[i]}")
         user_choice = input()
 
-        # Save file name to variable
-        file_name = IMAGE_OPTIONS[int(user_choice)]
+        # Join to get full file path and save to variable
+        file_path = os.path.join(DIRECTORY, IMAGE_OPTIONS[int(user_choice) - 1])
 
         # Exit loop if user chose to quit
         if user_choice.upper() == 'Q':
@@ -45,9 +46,18 @@ def present_menu():
             break
 
         processing_option = int(user_choice)
-        print(f"You picked option {processing_option}")
         # Call appropriate processing function based on user choice
-
+        ## Option 1: Lighten or darken
+        if processing_option == 1:
+            # Prompt user to choose lighten or darken
+            ld_choice = ''
+            while ld_choice.upper() != 'L' and ld_choice.upper() != 'D':
+                ld_choice = input("Enter L for lighten or D for darken: ")
+            # Prompt user to choose lighten or darken amount
+            ld_amount = -1
+            while ld_amount > 100 or ld_amount < 0:
+                ld_amount = int(input("Enter an amount for processing between 0% and 100%: "))
+            image_tools.lighten_darken(file_path, ld_choice, ld_amount)
 
         # Prompt user to process another image or quit
         user_choice = input("\nProcess another image? (Y/N): ")
@@ -55,9 +65,3 @@ def present_menu():
             user_choice = 'Q'
 
     print("done")
-
-
-def main():
-    present_menu()
-
-main()

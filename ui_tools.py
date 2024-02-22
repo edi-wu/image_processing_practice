@@ -12,8 +12,7 @@ def present_menu():
     # Constants for current directory, image options, and processing options
     DIRECTORY = os.getcwd()
     IMAGE_OPTIONS = ['laptop_photo.jpg', 'queen_mary.jpeg']
-    PROCESSING_OPTIONS = ['Lighten/Darken', 'Channel Color', 'Invert Color', 'Flip 180',
-                          'Add Blur', 'Detect Edges', 'Artist Choice']
+    PROCESSING_OPTIONS = ['Lighten/Darken', 'Channel Color', 'Invert Color', 'Add Blur', 'Detect Edges']
 
     # Variable for user choice
     user_choice = ''

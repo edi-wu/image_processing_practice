@@ -11,6 +11,7 @@ from PIL import Image
 # @param ld_option - *for lighten/darken* 'L' or 'D' for lighten or darken (string)
 # @param amount - *for lighten/darken* percentage between 0-100 to adjust image by (integer)
 # @param channel - *for channel color* 'R' 'G' or 'B' channel (string)
+# @param pixel_array - *for add blur* pixel array for source image (list of tuples)
 #
 def process_image(file_path, option, ld_option='', amount=0, channel=''):
     # Print status message for processing in progress
@@ -39,6 +40,8 @@ def process_image(file_path, option, ld_option='', amount=0, channel=''):
                     new_pixel = channel_color(old_pixel, channel)
                 elif option == 3:
                     new_pixel = invert_colors(old_pixel)
+                elif option == 4:
+                    new_pixel = add_blur(old_pixel, x, y, img.width, img.height, source_pixels)
                 # Update altered pixel array
                 altered_pixels[x, y] = new_pixel
         # Display altered image and prompt user to save or not
@@ -130,6 +133,77 @@ def invert_colors(pixel):
     # For each value, update it to result of 255 - value
     pixel_r, pixel_g, pixel_b = pixel[0], pixel[1], pixel[2]
     return 255 - pixel_r, 255 - pixel_g, 255 - pixel_b
+
+
+## Add blur by averaging RGB channel values
+# @param pixel - RGB values of source pixel (tuple of three ints)
+# @param pixel_x - x coordinate of pixel (int)
+# @param pixel_y - y coordinate of pixel (int)
+# @param max_x - width of image (int)
+# @param max_y - height of image (int)
+# @param pixel_array - array of pixels from source image (list of tuples)
+# @return RGB values of altered pixel (tuple of three ints)
+#
+def add_blur(pixel, pixel_x, pixel_y, max_x, max_y, pixel_array):
+    # Get valid coordinates for neighbor pixels
+    neighbor_coords = get_valid_neighbors(pixel_x, pixel_y, max_x, max_y)
+    # Map list of coordinates to list of pixels
+    neighbor_pixels = map_coords_to_pixels(neighbor_coords, pixel_array)
+    # Calculate and return average value of each channel for neighbors
+    return get_average_pixel(neighbor_pixels)
+
+
+## Function to return coordinates of a pixel's 8 neighbors
+# @param pixel_x - x coordinate of center pixel (int)
+# @param pixel_y - y coordinate of center pixel (int)
+# @param max_x - width of image (int)
+# @param max_y - height of image (int)
+# @return list of up to 8 (x, y) tuples for valid neighbors
+#
+def get_valid_neighbors(pixel_x, pixel_y, max_x, max_y):
+    neighbors = []
+    neighbor_x, neighbor_y = -1, -1
+    # Nested loop to get all neighbors via offsetting by -1, 0, 1
+    for x_offset in range(-1, 2, 1):
+        for y_offset in range(-1, 2, 1):
+            # Skip center pixel itself
+            if x_offset == 0 and y_offset == 0:
+                continue
+            # Update neighbor coords
+            neighbor_x = pixel_x + x_offset
+            neighbor_y = pixel_y + y_offset
+            # Skip if neighbor coords are out of bounds
+            if neighbor_x >= max_x or neighbor_x < 0 or neighbor_y >= max_y or neighbor_y < 0:
+                continue
+            # Add neighbor coords as tuple to list
+            neighbors.append((neighbor_x, neighbor_y))
+    return neighbors
+
+
+## Function to map a list of coordinates tuples to pixel tuples
+# @param coords_list - list of (x, y) coordinates (list of tuples)
+# @param pixel_array - array of pixels from an image (list of tuples)
+# @return list of pixel tuples corresponding to coordinates provided
+#
+def map_coords_to_pixels(coords_list, pixel_array):
+    pixels_list = []
+    for x, y in coords_list:
+        pixels_list.append(pixel_array[x, y])
+    return pixels_list
+
+
+## Function to return an average pixel (average value in each channel) from a list of pixels
+# @param pixels_list - list of pixels (tuples of three ints)
+# @return tuple of three ints for one pixel
+#
+def get_average_pixel(pixels_list):
+    num_pixels = len(pixels_list)
+    sum_r, sum_g, sum_b = 0, 0, 0
+    for pixel in pixels_list:
+        sum_r += pixel[0]
+        sum_g += pixel[1]
+        sum_b += pixel[2]
+    return round(sum_r / num_pixels), round(sum_g / num_pixels), round(sum_b / num_pixels)
 
 
 ## Function to display altered image and prompt user to save

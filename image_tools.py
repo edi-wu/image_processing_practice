@@ -41,7 +41,9 @@ def process_image(file_path, option, ld_option='', amount=0, channel=''):
                 elif option == 3:
                     new_pixel = invert_colors(old_pixel)
                 elif option == 4:
-                    new_pixel = add_blur(old_pixel, x, y, img.width, img.height, source_pixels)
+                    new_pixel = add_blur(x, y, img.width, img.height, source_pixels)
+                elif option == 5:
+                    new_pixel = detect_edges(old_pixel, x, y, img.width, img.height, source_pixels)
                 # Update altered pixel array
                 altered_pixels[x, y] = new_pixel
         # Display altered image and prompt user to save or not
@@ -136,7 +138,6 @@ def invert_colors(pixel):
 
 
 ## Add blur by averaging RGB channel values
-# @param pixel - RGB values of source pixel (tuple of three ints)
 # @param pixel_x - x coordinate of pixel (int)
 # @param pixel_y - y coordinate of pixel (int)
 # @param max_x - width of image (int)
@@ -144,13 +145,39 @@ def invert_colors(pixel):
 # @param pixel_array - array of pixels from source image (list of tuples)
 # @return RGB values of altered pixel (tuple of three ints)
 #
-def add_blur(pixel, pixel_x, pixel_y, max_x, max_y, pixel_array):
+def add_blur(pixel_x, pixel_y, max_x, max_y, pixel_array):
     # Get valid coordinates for neighbor pixels
     neighbor_coords = get_valid_neighbors(pixel_x, pixel_y, max_x, max_y)
     # Map list of coordinates to list of pixels
     neighbor_pixels = map_coords_to_pixels(neighbor_coords, pixel_array)
     # Calculate and return average value of each channel for neighbors
     return get_average_pixel(neighbor_pixels)
+
+
+## Function to convert image to a black and white image showing edges
+## Do this by coloring black all pixels whose RGB distance from the average of its neighbors exceeds 30
+## (dist = |r - r_neighbor_avg| + |g - g_neighbor_avg| + |b - b_neighbor_avg|)
+## Color all other pixels white
+## Procedure taken from textbook exercises P4.53 and P4.54
+# @param pixel - RGB values for current pixel (tuple of three ints)
+# @param pixel_x - x coordinate of pixel (int)
+# @param pixel_y - y coordinate of pixel (int)
+# @param max_x - width of image (int)
+# @param max_y - height of image (int)
+# @param pixel_array - array of pixels from source image (list of tuples)
+# @return either a black or white pixel tuple
+#
+def detect_edges(pixel, pixel_x, pixel_y, max_x, max_y, pixel_array):
+    # Get valid coordinates for neighbor pixels
+    neighbor_coords = get_valid_neighbors(pixel_x, pixel_y, max_x, max_y)
+    # Map list of coordinates to list of pixels
+    neighbor_pixels = map_coords_to_pixels(neighbor_coords, pixel_array)
+    # Calculate average RGB values of neighbor pixels
+    average_neighbor = get_average_pixel(neighbor_pixels)
+    # Calculate distance between current pixel's RGB and average neighbor's RGB
+    dist = get_rgb_distance(pixel, average_neighbor)
+    # Change pixel to black or white based on dist > 30
+    return (0, 0, 0) if dist > 30 else (255, 255, 255)
 
 
 ## Function to return coordinates of a pixel's 8 neighbors
@@ -205,6 +232,15 @@ def get_average_pixel(pixels_list):
         sum_b += pixel[2]
     return round(sum_r / num_pixels), round(sum_g / num_pixels), round(sum_b / num_pixels)
 
+
+## Function to calculate RGB distance between two pixels
+## Formula: (dist = |r - r_neighbor_avg| + |g - g_neighbor_avg| + |b - b_neighbor_avg|)
+# @param pixel_a - first pixel (tuple of three ints)
+# @param pixel_b - second pixel (tuple of three ints)
+# @return distance between RGB values (int)
+#
+def get_rgb_distance(pixel_a, pixel_b):
+    return abs(pixel_a[0] - pixel_b[0]) + abs(pixel_a[1] - pixel_b[1]) + abs(pixel_a[2] - pixel_b[2])
 
 ## Function to display altered image and prompt user to save
 # @param img - altered image object for display (PIL image object)

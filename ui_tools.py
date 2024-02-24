@@ -67,16 +67,12 @@ def present_menu():
             image_tools.process_image(file_path, processing_option, channel=channel_choice)
         # Remaining options do not require additional arguments to the main processing function
         ## Option 3: Invert colors
-        elif processing_option == 3:
-            image_tools.process_image(file_path, processing_option)
         ## Option 4: Add blur
-        elif processing_option == 4:
-            image_tools.process_image(file_path, processing_option)
         ## Option 5: Detect edges
-
+        else:
+            image_tools.process_image(file_path, processing_option)
 
         # Prompt user to process another image or quit
         user_choice = input("\nProcess another image? (Y/N): ")
         if user_choice.upper() != 'Y':
             user_choice = 'Q'
-

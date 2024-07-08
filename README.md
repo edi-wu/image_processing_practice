@@ -1,3 +1,1 @@
-## About
-
-Practice image processing using Python/PIL
+Image processing practice with Python/PIL
